@@ -40,9 +40,33 @@ class AppImageCollection:
             img.rescale(scale=scale, height=height)
 
 
+class SelectionCoords:
 
-def callback(event):
-    print('clicked at x={}, y={}'.format(event.x, event.y))
+    def __init__(self, canvas):
+        self.canvas = canvas
+        self.rect_id = None
+        self.x0, self.y0, self.x1, self.y1 = (0,) * 4
+
+    def reset(self, x0, y0):
+        self.x0, self.y0 = x0, y0
+        self.x1 = x0 + 5
+        self.y1 = y0 + 5
+
+        self._draw_rect()
+
+    def stretch_to(self, x1, y1):
+        self.x1, self.y1 = x1, y1
+
+        self._draw_rect()
+
+    def _draw_rect(self):
+
+        if self.rect_id:
+            self.canvas.delete(self.rect_id)
+
+        self.rect_id = self.canvas.create_rectangle(self.x0, self.y0, self.x1, self.y1)
+
+
 
 
 
@@ -55,9 +79,11 @@ class Application(tk.Frame):
         self.images = images
 
         self.pack()
-        self.createWidgets()
+        self._createWidgets()
 
-    def createWidgets(self, width=700, height=700):
+    def _createWidgets(self, width=700, height=700):
+        """Setup method.  Creates all buttons, canvases, and defaults before starting app."""
+
 
         self.btn_prev = tk.Button(self, text='Prev', command=self.prev_page)
         self.btn_prev.pack(side='top')
@@ -65,17 +91,28 @@ class Application(tk.Frame):
         self.btn_next = tk.Button(self, text='Next', command=self.next_page)
         self.btn_next.pack(side='top')
 
+        # Make the main Canvas, where most everything is drawn
         self.canvas = tk.Canvas(self, width=width, height=height)
         self.canvas.pack(side='right')
         self.canvas.update()
 
-        self.canvas.bind("<Button-1>", callback)
+        # Set up selection rectangle functionality
+        self.canvas.bind("<Button-1>", self.create_new_rect)
+        self.canvas.bind("<B1-Motion>", self.stretch_rect)
+        self.selection_coords = SelectionCoords(self.canvas)
 
+        # Rescale all images to properly fit the canvas.
         self.images.rescale(height=self.height)
 
-
+        # Display the first image
         self._img_idx = 0
         self.show_img(self._img_idx)
+
+    def create_new_rect(self, event):
+        self.selection_coords.reset(event.x, event.y)
+
+    def stretch_rect(self, event):
+        self.selection_coords.stretch_to(event.x, event.y)
 
     def show_img(self, idx):
         """Updates canvas image to the i'th image in the list.  If idx is outside the range of images, nothing happens."""
@@ -83,7 +120,6 @@ class Application(tk.Frame):
             assert idx >= 0
             self.curr_img = self.images[idx]
             self._img_idx = idx
-            print(self._img_idx)
         except (IndexError, AssertionError):
             pass
 
