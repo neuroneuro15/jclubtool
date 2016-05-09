@@ -10,6 +10,10 @@ from glob import glob
 appname = 'jclubtool'
 
 _cache_dir = appdirs.user_cache_dir(appname=appname)
+try:
+    os.makedirs(_cache_dir)
+except OSError:
+    pass
 
 # Delete everything in cache directory
 for name in os.listdir(_cache_dir):

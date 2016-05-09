@@ -28,6 +28,8 @@ class AppImageCollection:
 
     def __init__(self, filenames, height=None, scale=None):
         self.images = []
+        import ipdb
+        ipdb.set_trace()
         for filename in filenames:
             img = AppImage(filename, height=height, scale=scale)
             self.images.append(img)
@@ -72,9 +74,11 @@ class Application(tk.Frame):
     def show_img(self, idx):
         """Updates canvas image to the i'th image in the list.  If idx is outside the range of images, nothing happens."""
         try:
+            assert idx >= 0
             self.curr_img = self.images[idx]
             self._img_idx = idx
-        except IndexError:
+            print(self._img_idx)
+        except (IndexError, AssertionError):
             pass
 
         self.canvas.create_image(self.width // 2, self.height// 2, image=self.curr_img.photoimg)
