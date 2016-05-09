@@ -1,5 +1,6 @@
-from tkinter import *
+import tkinter as tk
 from PIL import Image, ImageTk
+from tkinter import filedialog
 
 class AppImage:
 
@@ -22,27 +23,37 @@ class AppImage:
         self.photoimg = ImageTk.PhotoImage(image=self.img_scaled)
 
 
-class Application(Frame):
+class Application(tk.Frame):
+
+    images = []
 
     def __init__(self, master=None):
-        Frame.__init__(self, master)
+        tk.Frame.__init__(self, master)
 
         self.pack()
         self.createWidgets()
 
     def createWidgets(self, width=1000, height=1000):
 
-        self.canvas = Canvas(self, width=width, height=height)
+        self.canvas = tk.Canvas(self, width=width, height=height)
         self.canvas.pack()
         self.canvas.update()
 
-        img = AppImage("img-9.jpg", height=height)
-        self.show_img(img)
+        img_names = filedialog.askopenfilenames()
+        self.load_images(img_names)
+
+        self.show_img(0)
+
+    def load_images(self, filenames):
+        for filename in filenames:
+            img = AppImage(filename, height=self.height)
+            self.images.append(img)
 
 
-    def show_img(self, app_img):
-        self.img = app_img
-        self.canvas.create_image(self.width // 2, self.height// 2, image=self.img.photoimg)
+
+    def show_img(self, idx):
+        self.curr_img = self.images[idx]
+        self.canvas.create_image(self.width // 2, self.height// 2, image=self.curr_img.photoimg)
 
     @property
     def width(self):
@@ -53,7 +64,7 @@ class Application(Frame):
         return self.canvas.winfo_height()
 
 
-root = Tk()
+root = tk.Tk()
 root.title('jclubtool')
 app = Application(master=root)
 
