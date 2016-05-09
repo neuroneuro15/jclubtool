@@ -33,16 +33,24 @@ class Application(tk.Frame):
         self.pack()
         self.createWidgets()
 
-    def createWidgets(self, width=1000, height=1000):
+    def createWidgets(self, width=700, height=700):
+
+        self.btn_next = tk.Button(self, text='Prev', command=lambda: self.show_img(self._img_idx - 1))
+        self.btn_next.pack(side='top')
+
+        self.btn_next = tk.Button(self, text='Next', command=lambda: self.show_img(self._img_idx + 1))
+        self.btn_next.pack(side='top')
 
         self.canvas = tk.Canvas(self, width=width, height=height)
-        self.canvas.pack()
+        self.canvas.pack(side='right')
         self.canvas.update()
 
-        img_names = filedialog.askopenfilenames()
+        from glob import glob
+        img_names = glob('samples/*.jpg') #filedialog.askopenfilenames()
         self.load_images(img_names)
 
-        self.show_img(0)
+        self._img_idx = 0
+        self.show_img(self._img_idx)
 
     def load_images(self, filenames):
         for filename in filenames:
@@ -52,8 +60,19 @@ class Application(tk.Frame):
 
 
     def show_img(self, idx):
-        self.curr_img = self.images[idx]
+        try:
+            self.curr_img = self.images[idx]
+            self._img_idx = idx
+        except IndexError:
+            pass
+
         self.canvas.create_image(self.width // 2, self.height// 2, image=self.curr_img.photoimg)
+
+
+
+
+
+
 
     @property
     def width(self):
