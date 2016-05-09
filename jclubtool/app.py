@@ -28,8 +28,6 @@ class AppImageCollection:
 
     def __init__(self, filenames, height=None, scale=None):
         self.images = []
-        import ipdb
-        ipdb.set_trace()
         for filename in filenames:
             img = AppImage(filename, height=height, scale=scale)
             self.images.append(img)
@@ -40,6 +38,12 @@ class AppImageCollection:
     def rescale(self, scale=None, height=None):
         for img in self.images:
             img.rescale(scale=scale, height=height)
+
+
+
+def callback(event):
+    print('clicked at x={}, y={}'.format(event.x, event.y))
+
 
 
 class Application(tk.Frame):
@@ -55,15 +59,17 @@ class Application(tk.Frame):
 
     def createWidgets(self, width=700, height=700):
 
-        self.btn_next = tk.Button(self, text='Prev', command=lambda: self.show_img(self._img_idx - 1))
-        self.btn_next.pack(side='top')
+        self.btn_prev = tk.Button(self, text='Prev', command=self.prev_page)
+        self.btn_prev.pack(side='top')
 
-        self.btn_next = tk.Button(self, text='Next', command=lambda: self.show_img(self._img_idx + 1))
+        self.btn_next = tk.Button(self, text='Next', command=self.next_page)
         self.btn_next.pack(side='top')
 
         self.canvas = tk.Canvas(self, width=width, height=height)
         self.canvas.pack(side='right')
         self.canvas.update()
+
+        self.canvas.bind("<Button-1>", callback)
 
         self.images.rescale(height=self.height)
 
@@ -82,6 +88,12 @@ class Application(tk.Frame):
             pass
 
         self.canvas.create_image(self.width // 2, self.height// 2, image=self.curr_img.photoimg)
+
+    def next_page(self):
+        self.show_img(self._img_idx + 1)
+
+    def prev_page(self):
+        self.show_img(self._img_idx - 1)
 
     @property
     def width(self):

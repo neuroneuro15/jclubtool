@@ -43,4 +43,9 @@ images = jclub.AppImageCollection(img_names)
 
 app = jclub.Application(images=images, master=root)
 
+# Keyboard Shortcuts
+root.bind('<Escape>', lambda event: root.quit())
+root.bind('<Left>', lambda event: app.prev_page())
+root.bind('<Right>', lambda event: app.next_page())
+
 app.mainloop()
