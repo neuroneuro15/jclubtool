@@ -39,9 +39,8 @@ class AppImageCollection:
         for img in self.images:
             img.rescale(scale=scale, height=height)
 
-class Application(tk.Frame):
 
-    images = []
+class Application(tk.Frame):
 
     def __init__(self, images, master=None):
         tk.Frame.__init__(self, master)
@@ -70,8 +69,8 @@ class Application(tk.Frame):
         self._img_idx = 0
         self.show_img(self._img_idx)
 
-
     def show_img(self, idx):
+        """Updates canvas image to the i'th image in the list.  If idx is outside the range of images, nothing happens."""
         try:
             self.curr_img = self.images[idx]
             self._img_idx = idx
@@ -82,10 +81,12 @@ class Application(tk.Frame):
 
     @property
     def width(self):
+        """Canvas width"""
         return self.canvas.winfo_width()
 
     @property
     def height(self):
+        """Canvas height"""
         return self.canvas.winfo_height()
 
 
