@@ -1,5 +1,6 @@
 from wand.image import Image
 from os import path
+import re
 
 def convert_pdf_to_jpg(pdf_filename, jpg_filename, resolution=300):
 
@@ -11,3 +12,9 @@ def convert_pdf_to_jpg(pdf_filename, jpg_filename, resolution=300):
     with Image(filename=pdf_filename, resolution=resolution) as pdf:
         pdf.save(filename=jpg_filename)
 
+
+def get_jpg_page_number(filename):
+    return int(re.findall('([0-9]+)', filename)[0])
+
+def sort_jpg_pages(filenames):
+    filenames.sort(key=get_jpg_page_number)

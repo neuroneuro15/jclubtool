@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from tkinter import filedialog
 
+
 class AppImage:
 
     def __init__(self, filename, height=None, scale=None):
@@ -23,12 +24,30 @@ class AppImage:
         self.photoimg = ImageTk.PhotoImage(image=self.img_scaled)
 
 
+class AppImageCollection:
+
+    def __init__(self, filenames, height=None, scale=None):
+        self.images = []
+        for filename in filenames:
+            img = AppImage(filename, height=height, scale=scale)
+            self.images.append(img)
+
+    def __getitem__(self, item):
+        return self.images[item]
+
+    def rescale(self, scale=None, height=None):
+        for img in self.images:
+            img.rescale(scale=scale, height=height)
+
 class Application(tk.Frame):
 
     images = []
 
-    def __init__(self, master=None):
+    def __init__(self, images, master=None):
         tk.Frame.__init__(self, master)
+
+        assert isinstance(images, AppImageCollection)
+        self.images = images
 
         self.pack()
         self.createWidgets()
@@ -45,18 +64,11 @@ class Application(tk.Frame):
         self.canvas.pack(side='right')
         self.canvas.update()
 
-        from glob import glob
-        img_names = glob('samples/*.jpg') #filedialog.askopenfilenames()
-        self.load_images(img_names)
+        self.images.rescale(height=self.height)
+
 
         self._img_idx = 0
         self.show_img(self._img_idx)
-
-    def load_images(self, filenames):
-        for filename in filenames:
-            img = AppImage(filename, height=self.height)
-            self.images.append(img)
-
 
 
     def show_img(self, idx):
@@ -68,12 +80,6 @@ class Application(tk.Frame):
 
         self.canvas.create_image(self.width // 2, self.height// 2, image=self.curr_img.photoimg)
 
-
-
-
-
-
-
     @property
     def width(self):
         return self.canvas.winfo_width()
@@ -83,8 +89,3 @@ class Application(tk.Frame):
         return self.canvas.winfo_height()
 
 
-root = tk.Tk()
-root.title('jclubtool')
-app = Application(master=root)
-
-app.mainloop()
