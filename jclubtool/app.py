@@ -81,7 +81,7 @@ class Application(tk.Frame):
         self.pack()
         self._createWidgets()
 
-    def _createWidgets(self, width=700, height=700):
+    def _createWidgets(self, width=600, height=700):
         """Setup method.  Creates all buttons, canvases, and defaults before starting app."""
 
 
@@ -98,7 +98,12 @@ class Application(tk.Frame):
 
         # Set up selection rectangle functionality
         self.canvas.bind("<Button-1>", self.create_new_rect)
+        # self.canvas.bind("<Button-1>", self._print_coords)
         self.canvas.bind("<B1-Motion>", self.stretch_rect)
+        self.canvas.bind("<ButtonRelease-1>", self.get_subimage)
+
+        self.canvas.bind("<Button-3>", self._print_coords)
+
         self.selection_coords = SelectionCoords(self.canvas)
 
         # Rescale all images to properly fit the canvas.
@@ -107,6 +112,11 @@ class Application(tk.Frame):
         # Display the first image
         self._img_idx = 0
         self.show_img(self._img_idx)
+
+    def _print_coords(self, event):
+        print(self.width, self.height, self.curr_img.photoimg.width(),
+              self.curr_img.photoimg.height(),
+              event.x, event.y)
 
     def create_new_rect(self, event):
         self.selection_coords.reset(event.x, event.y)
@@ -123,7 +133,27 @@ class Application(tk.Frame):
         except (IndexError, AssertionError):
             pass
 
-        self.canvas.create_image(self.width // 2, self.height// 2, image=self.curr_img.photoimg)
+        # self.canvas.create_image(self.width // 2, self.height// 2, image=self.curr_img.photoimg)
+        self.canvas.create_image(0, 0, image=self.curr_img.photoimg, anchor='nw')
+
+    def get_subimage(self, event):
+        rect = self.selection_coords
+        pim_size = self.curr_img.photoimg.width(), self.curr_img.photoimg.height()
+        rect_perc = [rect.x0 / pim_size[0], rect.y0 / pim_size[1], rect.x1 / pim_size[0], rect.y1 / pim_size[1]]
+
+        # Correct for if the rectangle wasn't drawn top-left to bottom-right
+        if rect_perc[0] > rect_perc[2]:
+            rect_perc[0], rect_perc[2] = rect_perc[2], rect_perc[0]
+        if rect_perc[1] > rect_perc[3]:
+            rect_perc[1], rect_perc[3] = rect_perc[3], rect_perc[1]
+
+
+
+        im_size = self.curr_img.img.size
+        im_rect = [int(s * p) for s, p in zip(im_size * 2, rect_perc)]
+
+        subimg = self.curr_img.img.crop(im_rect)
+        subimg.save('img.jpg')
 
     def next_page(self):
         self.show_img(self._img_idx + 1)

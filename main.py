@@ -29,7 +29,7 @@ shutil.copy(pdf_name, new_pdf_name)
 
 # Convert PDF to a series of jpgs
 print('Converting PDF to jpgs...', end='')
-jclub.convert_pdf_to_jpg(new_pdf_name, path.join(_cache_dir, 'img'), resolution=50)
+jclub.convert_pdf_to_jpg(new_pdf_name, path.join(_cache_dir, 'img'), resolution=100)
 img_names = glob(path.join(_cache_dir, '*.jpg')) #filedialog.askopenfilenames()
 jclub.sort_jpg_pages(img_names)
 print('...Complete.')
@@ -37,6 +37,7 @@ print('...Complete.')
 # Load up Tkinter
 root = tk.Tk()
 root.title(appname)
+root.resizable(True, True)
 
 # Create AppImageCollection (warning: Must come after tk.Tk()!!)
 images = jclub.AppImageCollection(img_names)
