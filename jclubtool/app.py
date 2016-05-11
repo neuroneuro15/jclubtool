@@ -28,6 +28,13 @@ class Application(tk.Frame):
         self.btn_next = tk.Button(self, text='Next', command=self.next_page)
         self.btn_next.pack(side='top')
 
+        self.img_basename_label = tk.Label(self, text='Image Filename:')
+        self.img_basename_label.pack(side='top')
+
+        self.img_filename = tk.StringVar()
+        self.img_basename = tk.Entry(self, textvariable=self.img_filename)
+        self.img_basename.pack(side='top')
+
         # Make the main Canvas, where most everything is drawn
         self.canvas = tk.Canvas(self, width=width, height=height)
         self.canvas.pack(side='right')
@@ -58,7 +65,7 @@ class Application(tk.Frame):
 
     def show_img(self):
         """Displays a rescaled page to fit the canvas size."""
-
+        print(self.img_filename)
         self.selectbox.delete()
         img = self.images.get_scaled_img()
 
