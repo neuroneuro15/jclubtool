@@ -1,37 +1,31 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-from .pages import PageCollection
+# from .pages import PageCollection
 
 class SelectionBox:
 
     def __init__(self, canvas):
         self.canvas = canvas
         self.id = 0
+        self.coords0 = None
 
     def delete(self):
         if self.id:
             self.canvas.delete(self.id)
             self.id = 0
+            self.coords0 = None
 
     def new(self, x, y):
         self.delete()
         self.id = self.canvas.create_rectangle(x, y, x + 1, y + 1)
+        self.coords0 = [x, y]
 
     @property
     def coords(self):
         return self.canvas.coords(self.id)
 
     def update(self, x, y):
-
-        coords = self.canvas.coords(self.id)
-
-        # Correct for if the rectangle wasn't drawn top-left to bottom-right
-        index = 0 if x < coords[0] else 2
-        coords[index] = x
-
-        index = 1 if x < coords[1] else 3
-        coords[index] = y
-
+        coords = self.coords0 + [x, y]
         self.canvas.coords(self.id, *coords)
 
 
@@ -40,8 +34,8 @@ class Application(tk.Frame):
     def __init__(self, images, master=None):
 
         tk.Frame.__init__(self, master=master)
-        self.images = PageCollection(images)
-
+        # self.images = PageCollection(images)
+        self.images = images
 
         self.pack()
         self._createWidgets()
@@ -70,7 +64,7 @@ class Application(tk.Frame):
         # Set up selection rectangle functionality
         self.canvas.bind("<Button-1>", self.selectbox_create)
         self.canvas.bind("<B1-Motion>", self.selectbox_update)
-        self.canvas.bind("<ButtonRelease-1>", self.get_subimage)
+        self.canvas.bind("<Button-3>", self.get_subimage)
         self.canvas.bind("<Configure>", self.on_resize)
 
 
