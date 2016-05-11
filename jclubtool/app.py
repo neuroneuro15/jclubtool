@@ -35,7 +35,7 @@ class Application(tk.Frame):
         # Set up selection rectangle functionality
         self.canvas.bind("<Button-1>", self.selectbox_create)
         self.canvas.bind("<B1-Motion>", self.selectbox_update)
-        # self.canvas.bind("<ButtonRelease-1>", self._print_coords)
+        self.canvas.bind("<ButtonRelease-1>", self.get_subimage)
         self.canvas.bind("<Configure>", self.on_resize)
 
 
@@ -76,7 +76,7 @@ class Application(tk.Frame):
         """Displays a rescaled page to fit the canvas size."""
 
         self.selectbox_delete()
-        img = self.images[self.page_idx]
+        img = self.get_current_image()
         img_scaled = self.rescale(img, self.height)
 
         #tkinter gotcha--must save photoimage as attribute, or it garbage collects it.
@@ -84,23 +84,26 @@ class Application(tk.Frame):
 
         self.canvas.create_image(0, 0, image=self._photoimg, anchor='nw')
 
+    def get_current_image(self):
+        return self.images[self.page_idx]
+
     def get_subimage(self, event):
-        rect = self.selection_coords
-        pim_size = self.curr_img.photoimg.width(), self.curr_img.photoimg.height()
-        rect_perc = [rect.x0 / pim_size[0], rect.y0 / pim_size[1], rect.x1 / pim_size[0], rect.y1 / pim_size[1]]
+        assert self.selectbox
+        rect = self.canvas.coords(self.selectbox)
+        img = self.get_current_image()
+        scale = img.size[1] / self.height
 
-        # Correct for if the rectangle wasn't drawn top-left to bottom-right
-        if rect_perc[0] > rect_perc[2]:
-            rect_perc[0], rect_perc[2] = rect_perc[2], rect_perc[0]
-        if rect_perc[1] > rect_perc[3]:
-            rect_perc[1], rect_perc[3] = rect_perc[3], rect_perc[1]
+        select_coords = [int(coord * scale) for coord in rect]
+
+        # # Correct for if the rectangle wasn't drawn top-left to bottom-right
+        # if rect_perc[0] > rect_perc[2]:
+        #     rect_perc[0], rect_perc[2] = rect_perc[2], rect_perc[0]
+        # if rect_perc[1] > rect_perc[3]:
+        #     rect_perc[1], rect_perc[3] = rect_perc[3], rect_perc[1]
 
 
-
-        im_size = self.curr_img.img.size
-        im_rect = [int(s * p) for s, p in zip(im_size * 2, rect_perc)]
-
-        subimg = self.curr_img.img.crop(im_rect)
+        subimg = img.crop(select_coords)
+        print(select_coords)
         subimg.save('img.jpg')
 
     def next_page(self):
