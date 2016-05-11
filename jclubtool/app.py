@@ -103,6 +103,7 @@ class Application(tk.Frame):
         self.canvas.bind("<ButtonRelease-1>", self.get_subimage)
 
         self.canvas.bind("<Button-3>", self._print_coords)
+        self.canvas.bind("<Configure>", self.on_resize)
 
         self.selection_coords = SelectionCoords(self.canvas)
 
@@ -117,6 +118,22 @@ class Application(tk.Frame):
         print(self.width, self.height, self.curr_img.photoimg.width(),
               self.curr_img.photoimg.height(),
               event.x, event.y)
+
+    def on_resize(self, event):
+        wscale = float(event.width)/self.curr_img.img.width
+        hscale = float(event.height)/self.curr_img.img.height
+        # resize the canvas
+        self.canvas.config(width=self.width, height=self.height)
+        # rescale all the objects tagged with the "all" tag
+        self.canvas.scale("all",0,0,wscale,hscale)
+
+        img = self.curr_img
+        img.img_scaled = img.img.resize((int(img.img.size[0] * wscale), int(img.img.size[1] * hscale)))
+        img.photoimg = ImageTk.PhotoImage(image=img.img_scaled)
+        self.show_img(self._img_idx)
+
+        print(event.width, event.height, wscale, hscale, img.img_scaled.size[0], img.img_scaled.size[1])
+
 
     def create_new_rect(self, event):
         self.selection_coords.reset(event.x, event.y)
