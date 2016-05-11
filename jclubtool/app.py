@@ -2,35 +2,6 @@ import tkinter as tk
 from PIL import Image, ImageTk
 
 
-class SelectionCoords:
-
-    def __init__(self, canvas):
-        self.canvas = canvas
-        self.rect_id = None
-        self.x0, self.y0, self.x1, self.y1 = (0,) * 4
-
-    def reset(self, x0, y0):
-        self.x0, self.y0 = x0, y0
-        self.x1 = x0 + 5
-        self.y1 = y0 + 5
-
-        self._draw_rect()
-
-    def stretch_to(self, x1, y1):
-        self.x1, self.y1 = x1, y1
-
-        self._draw_rect()
-
-    def _draw_rect(self):
-
-        if self.rect_id:
-            self.canvas.delete(self.rect_id)
-
-        self.rect_id = self.canvas.create_rectangle(self.x0, self.y0, self.x1, self.y1)
-
-
-
-
 
 class Application(tk.Frame):
 
@@ -39,11 +10,10 @@ class Application(tk.Frame):
         tk.Frame.__init__(self, master=master)
         self.images = images
         self.__page_idx = 0
-
+        self.selectbox = 0
 
         self.pack()
         self._createWidgets()
-        self.selection_coords = SelectionCoords(self.canvas)
 
         self.show_img()
 
@@ -63,8 +33,8 @@ class Application(tk.Frame):
         self.canvas.update()
 
         # Set up selection rectangle functionality
-        self.canvas.bind("<Button-1>", self.create_new_rect)
-        self.canvas.bind("<B1-Motion>", self.stretch_rect)
+        self.canvas.bind("<Button-1>", self.selectbox_create)
+        self.canvas.bind("<B1-Motion>", self.selectbox_update)
         # self.canvas.bind("<ButtonRelease-1>", self._print_coords)
         self.canvas.bind("<Configure>", self.on_resize)
 
@@ -72,12 +42,22 @@ class Application(tk.Frame):
     def on_resize(self, event):
         self.show_img()
 
+    def selectbox_delete(self):
+        if self.selectbox:
+            self.canvas.delete(self.selectbox)
+        self.selectbox = 0
 
-    def create_new_rect(self, event):
-        self.selection_coords.reset(event.x, event.y)
+    def selectbox_create(self, event):
+        if self.selectbox:
+            self.selectbox_delete()
+        self.selectbox = self.canvas.create_rectangle(event.x, event.y,
+                                                      event.x + 1, event.y + 1)
 
-    def stretch_rect(self, event):
-        self.selection_coords.stretch_to(event.width, event.height)
+    def selectbox_update(self, event):
+        boxcoords = self.canvas.coords(self.selectbox)
+        boxcoords[2:] = event.x, event.y
+        self.canvas.coords(self.selectbox, *boxcoords)
+
 
     @property
     def page_idx(self):
@@ -95,6 +75,7 @@ class Application(tk.Frame):
     def show_img(self):
         """Displays a rescaled page to fit the canvas size."""
 
+        self.selectbox_delete()
         img = self.images[self.page_idx]
         img_scaled = self.rescale(img, self.height)
 
@@ -123,10 +104,12 @@ class Application(tk.Frame):
         subimg.save('img.jpg')
 
     def next_page(self):
-        self.show_img(self._img_idx + 1)
+        self.page_idx += 1
+        self.show_img()
 
     def prev_page(self):
-        self.show_img(self._img_idx - 1)
+        self.page_idx -= 1
+        self.show_img()
 
     @property
     def width(self):
