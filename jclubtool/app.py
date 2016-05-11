@@ -55,7 +55,20 @@ class Application(tk.Frame):
 
     def selectbox_update(self, event):
         boxcoords = self.canvas.coords(self.selectbox)
-        boxcoords[2:] = event.x, event.y
+
+
+        # Correct for if the rectangle wasn't drawn top-left to bottom-right
+        if event.x < boxcoords[0]:
+            boxcoords[0] = event.x
+        else:
+            boxcoords[2] = event.x
+
+        if event.y < boxcoords[1]:
+            boxcoords[1] = event.y
+        else:
+            boxcoords[3] = event.y
+
+        print(boxcoords)
         self.canvas.coords(self.selectbox, *boxcoords)
 
 
@@ -95,15 +108,7 @@ class Application(tk.Frame):
 
         select_coords = [int(coord * scale) for coord in rect]
 
-        # # Correct for if the rectangle wasn't drawn top-left to bottom-right
-        # if rect_perc[0] > rect_perc[2]:
-        #     rect_perc[0], rect_perc[2] = rect_perc[2], rect_perc[0]
-        # if rect_perc[1] > rect_perc[3]:
-        #     rect_perc[1], rect_perc[3] = rect_perc[3], rect_perc[1]
-
-
         subimg = img.crop(select_coords)
-        print(select_coords)
         subimg.save('img.jpg')
 
     def next_page(self):
