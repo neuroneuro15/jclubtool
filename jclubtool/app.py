@@ -1,6 +1,6 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-# from .pages import PageCollection
+from .pages import PageCollection
 
 class SelectionBox:
 
@@ -34,8 +34,7 @@ class Application(tk.Frame):
     def __init__(self, images, master=None):
 
         tk.Frame.__init__(self, master=master)
-        # self.images = PageCollection(images)
-        self.images = images
+        self.images = PageCollection(images)
 
         self.pack()
         self._createWidgets()

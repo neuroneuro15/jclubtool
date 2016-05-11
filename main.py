@@ -40,7 +40,7 @@ root.title(appname)
 root.resizable(True, True)
 
 # Create AppImageCollection (warning: Must come after tk.Tk()!!)
-images = jclub.PageCollection([Image.open(name) for name in img_names])
+images = [Image.open(name) for name in img_names]
 # images = jclub.AppImageCollection(img_names)
 
 app = jclub.Application(images=images, master=root)
