@@ -1,43 +1,5 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-from tkinter import filedialog
-
-
-class AppImage:
-
-    def __init__(self, filename, height=None, scale=None):
-
-        self.img = Image.open(filename)
-        self.img_scaled, self.photoimg = None, None
-        self.rescale(scale=scale, height=height)
-
-
-    def rescale(self, scale=None, height=None):
-
-        if height:
-            scale = height / self.img.size[1]
-        if not scale:
-            scale = 1.
-
-        size = self.img.size
-        self.img_scaled = self.img.resize((int(size[0] * scale), int(size[1] * scale)))
-        self.photoimg = ImageTk.PhotoImage(image=self.img_scaled)
-
-
-class AppImageCollection:
-
-    def __init__(self, filenames, height=None, scale=None):
-        self.images = []
-        for filename in filenames:
-            img = AppImage(filename, height=height, scale=scale)
-            self.images.append(img)
-
-    def __getitem__(self, item):
-        return self.images[item]
-
-    def rescale(self, scale=None, height=None):
-        for img in self.images:
-            img.rescale(scale=scale, height=height)
 
 
 class SelectionCoords:
@@ -73,13 +35,17 @@ class SelectionCoords:
 class Application(tk.Frame):
 
     def __init__(self, images, master=None):
-        tk.Frame.__init__(self, master)
 
-        assert isinstance(images, AppImageCollection)
+        tk.Frame.__init__(self, master=master)
         self.images = images
+        self.__page_idx = 0
+
 
         self.pack()
         self._createWidgets()
+        self.selection_coords = SelectionCoords(self.canvas)
+
+        self.show_img()
 
     def _createWidgets(self, width=600, height=700):
         """Setup method.  Creates all buttons, canvases, and defaults before starting app."""
@@ -98,60 +64,44 @@ class Application(tk.Frame):
 
         # Set up selection rectangle functionality
         self.canvas.bind("<Button-1>", self.create_new_rect)
-        # self.canvas.bind("<Button-1>", self._print_coords)
         self.canvas.bind("<B1-Motion>", self.stretch_rect)
-        self.canvas.bind("<ButtonRelease-1>", self.get_subimage)
-
-        self.canvas.bind("<Button-3>", self._print_coords)
+        # self.canvas.bind("<ButtonRelease-1>", self._print_coords)
         self.canvas.bind("<Configure>", self.on_resize)
 
-        self.selection_coords = SelectionCoords(self.canvas)
-
-        # Rescale all images to properly fit the canvas.
-        self.images.rescale(height=self.height)
-
-        # Display the first image
-        self._img_idx = 0
-        self.show_img(self._img_idx)
-
-    def _print_coords(self, event):
-        print(self.width, self.height, self.curr_img.photoimg.width(),
-              self.curr_img.photoimg.height(),
-              event.x, event.y)
 
     def on_resize(self, event):
-        wscale = float(event.width)/self.curr_img.img.width
-        hscale = float(event.height)/self.curr_img.img.height
-        # resize the canvas
-        self.canvas.config(width=self.width, height=self.height)
-        # rescale all the objects tagged with the "all" tag
-        self.canvas.scale("all",0,0,wscale,hscale)
-
-        img = self.curr_img
-        img.img_scaled = img.img.resize((int(img.img.size[0] * wscale), int(img.img.size[1] * hscale)))
-        img.photoimg = ImageTk.PhotoImage(image=img.img_scaled)
-        self.show_img(self._img_idx)
-
-        print(event.width, event.height, wscale, hscale, img.img_scaled.size[0], img.img_scaled.size[1])
+        self.show_img()
 
 
     def create_new_rect(self, event):
         self.selection_coords.reset(event.x, event.y)
 
     def stretch_rect(self, event):
-        self.selection_coords.stretch_to(event.x, event.y)
+        self.selection_coords.stretch_to(event.width, event.height)
 
-    def show_img(self, idx):
-        """Updates canvas image to the i'th image in the list.  If idx is outside the range of images, nothing happens."""
-        try:
-            assert idx >= 0
-            self.curr_img = self.images[idx]
-            self._img_idx = idx
-        except (IndexError, AssertionError):
-            pass
+    @property
+    def page_idx(self):
+        return self.__page_idx
 
-        # self.canvas.create_image(self.width // 2, self.height// 2, image=self.curr_img.photoimg)
-        self.canvas.create_image(0, 0, image=self.curr_img.photoimg, anchor='nw')
+    @page_idx.setter
+    def page_idx(self, value):
+        self.__page_idx = max(0, min(value, len(self.images)-1))
+
+    @staticmethod
+    def rescale(img, height):
+        width = int((height / img.size[1]) * img.size[0])
+        return img.resize((width, height))
+
+    def show_img(self):
+        """Displays a rescaled page to fit the canvas size."""
+
+        img = self.images[self.page_idx]
+        img_scaled = self.rescale(img, self.height)
+
+        #tkinter gotcha--must save photoimage as attribute, or it garbage collects it.
+        self._photoimg = ImageTk.PhotoImage(image=img_scaled)
+
+        self.canvas.create_image(0, 0, image=self._photoimg, anchor='nw')
 
     def get_subimage(self, event):
         rect = self.selection_coords

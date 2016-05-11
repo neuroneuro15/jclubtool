@@ -5,7 +5,7 @@ import os
 from os import path
 import shutil
 from glob import glob
-
+from PIL import Image
 
 appname = 'jclubtool'
 
@@ -40,7 +40,8 @@ root.title(appname)
 root.resizable(True, True)
 
 # Create AppImageCollection (warning: Must come after tk.Tk()!!)
-images = jclub.AppImageCollection(img_names)
+images = [Image.open(name) for name in img_names]
+# images = jclub.AppImageCollection(img_names)
 
 app = jclub.Application(images=images, master=root)
 
