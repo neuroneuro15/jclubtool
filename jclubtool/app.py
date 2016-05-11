@@ -2,19 +2,66 @@ import tkinter as tk
 from PIL import Image, ImageTk
 
 
+class PageCollection:
+
+    def __init__(self, images):
+        self.images = images
+        self.__page_idx = 0
+        self.display_scale = 1.
+
+    def next_page(self):
+        self.page_idx += 1
+
+    def prev_page(self):
+        self.page_idx -= 1
+
+    @property
+    def page_idx(self):
+        return self.__page_idx
+
+    @page_idx.setter
+    def page_idx(self, value):
+        self.__page_idx = max(0, min(value, len(self.images)-1))
+
+    def get_current_image(self):
+        return self.images[self.page_idx]
+
+    def set_scale(self, height):
+        self.display_scale = height / self.get_current_image().size[1]
+
+    def get_scaled_img(self):
+        """Displays a rescaled page to fit the canvas size."""
+        img = self.get_current_image()
+        width = int(img.size[0] * self.display_scale)
+        height = int(img.size[1] * self.display_scale)
+
+        img_scaled = img.resize((width, height))
+        return img_scaled
+
+    def get_subimage(self, x0, y0, x1, y1):
+
+        rect = [x0, y0, x1, y1]
+        rect = [int(coord / self.display_scale) for coord in rect]
+        subimg = self.get_current_image().crop(rect)
+        return subimg
+
+
+
+
 
 class Application(tk.Frame):
 
     def __init__(self, images, master=None):
 
         tk.Frame.__init__(self, master=master)
-        self.images = images
-        self.__page_idx = 0
+        self.images = PageCollection(images)
         self.selectbox = 0
 
         self.pack()
         self._createWidgets()
 
+        canv_height = self.canvas.winfo_height()
+        self.images.set_scale(canv_height)
         self.show_img()
 
     def _createWidgets(self, width=600, height=700):
@@ -32,6 +79,7 @@ class Application(tk.Frame):
         self.canvas.pack(side='right')
         self.canvas.update()
 
+
         # Set up selection rectangle functionality
         self.canvas.bind("<Button-1>", self.selectbox_create)
         self.canvas.bind("<B1-Motion>", self.selectbox_update)
@@ -40,6 +88,7 @@ class Application(tk.Frame):
 
 
     def on_resize(self, event):
+        self.images.set_scale(event.height)
         self.show_img()
 
     def selectbox_delete(self):
@@ -72,61 +121,32 @@ class Application(tk.Frame):
         self.canvas.coords(self.selectbox, *boxcoords)
 
 
-    @property
-    def page_idx(self):
-        return self.__page_idx
-
-    @page_idx.setter
-    def page_idx(self, value):
-        self.__page_idx = max(0, min(value, len(self.images)-1))
-
-    @staticmethod
-    def rescale(img, height):
-        width = int((height / img.size[1]) * img.size[0])
-        return img.resize((width, height))
-
     def show_img(self):
         """Displays a rescaled page to fit the canvas size."""
 
         self.selectbox_delete()
-        img = self.get_current_image()
-        img_scaled = self.rescale(img, self.height)
+
+        img = self.images.get_scaled_img()
 
         #tkinter gotcha--must save photoimage as attribute, or it garbage collects it.
-        self._photoimg = ImageTk.PhotoImage(image=img_scaled)
+        self._photoimg = ImageTk.PhotoImage(image=img)
 
         self.canvas.create_image(0, 0, image=self._photoimg, anchor='nw')
 
-    def get_current_image(self):
-        return self.images[self.page_idx]
 
     def get_subimage(self, event):
         assert self.selectbox
         rect = self.canvas.coords(self.selectbox)
-        img = self.get_current_image()
-        scale = img.size[1] / self.height
+        img = self.images.get_subimage(*rect)
 
-        select_coords = [int(coord * scale) for coord in rect]
-
-        subimg = img.crop(select_coords)
-        subimg.save('img.jpg')
+        img.save('img.jpg')
 
     def next_page(self):
-        self.page_idx += 1
+        self.images.next_page()
         self.show_img()
 
     def prev_page(self):
-        self.page_idx -= 1
+        self.images.prev_page()
         self.show_img()
-
-    @property
-    def width(self):
-        """Canvas width"""
-        return self.canvas.winfo_width()
-
-    @property
-    def height(self):
-        """Canvas height"""
-        return self.canvas.winfo_height()
 
 
