@@ -2,6 +2,38 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from .pages import PageCollection
 
+class SelectionBox:
+
+    def __init__(self, canvas):
+        self.canvas = canvas
+        self.id = 0
+
+    def delete(self):
+        if self.id:
+            self.canvas.delete(self.id)
+            self.id = 0
+
+    def new(self, x, y):
+        self.delete()
+        self.id = self.canvas.create_rectangle(x, y, x + 1, y + 1)
+
+    @property
+    def coords(self):
+        return self.canvas.coords(self.id)
+
+    def update(self, x, y):
+
+        coords = self.canvas.coords(self.id)
+
+        # Correct for if the rectangle wasn't drawn top-left to bottom-right
+        index = 0 if x < coords[0] else 2
+        coords[index] = x
+
+        index = 1 if x < coords[1] else 3
+        coords[index] = y
+
+        self.canvas.coords(self.id, *coords)
+
 
 class Application(tk.Frame):
 
@@ -9,10 +41,11 @@ class Application(tk.Frame):
 
         tk.Frame.__init__(self, master=master)
         self.images = PageCollection(images)
-        self.selectbox = 0
+
 
         self.pack()
         self._createWidgets()
+        self.selectbox = SelectionBox(self.canvas)
 
         canv_height = self.canvas.winfo_height()
         self.images.set_scale(canv_height)
@@ -51,35 +84,15 @@ class Application(tk.Frame):
         self.selectbox = 0
 
     def selectbox_create(self, event):
-        if self.selectbox:
-            self.selectbox_delete()
-        self.selectbox = self.canvas.create_rectangle(event.x, event.y,
-                                                      event.x + 1, event.y + 1)
+        self.selectbox.new(event.x, event.y)
 
     def selectbox_update(self, event):
-        boxcoords = self.canvas.coords(self.selectbox)
-
-
-        # Correct for if the rectangle wasn't drawn top-left to bottom-right
-        if event.x < boxcoords[0]:
-            boxcoords[0] = event.x
-        else:
-            boxcoords[2] = event.x
-
-        if event.y < boxcoords[1]:
-            boxcoords[1] = event.y
-        else:
-            boxcoords[3] = event.y
-
-        print(boxcoords)
-        self.canvas.coords(self.selectbox, *boxcoords)
-
+        self.selectbox.update(event.x, event.y)
 
     def show_img(self):
         """Displays a rescaled page to fit the canvas size."""
 
-        self.selectbox_delete()
-
+        self.selectbox.delete()
         img = self.images.get_scaled_img()
 
         #tkinter gotcha--must save photoimage as attribute, or it garbage collects it.
@@ -89,10 +102,7 @@ class Application(tk.Frame):
 
 
     def get_subimage(self, event):
-        assert self.selectbox
-        rect = self.canvas.coords(self.selectbox)
-        img = self.images.get_subimage(*rect)
-
+        img = self.images.get_subimage(*self.selectbox.coords)
         img.save('img.jpg')
 
     def next_page(self):
