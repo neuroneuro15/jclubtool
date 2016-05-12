@@ -1,5 +1,6 @@
 import jclubtool as jclub
 import tkinter as tk
+from tkinter import ttk
 
 
 # Delete everything in cache directory
@@ -7,6 +8,12 @@ jclub.create_cache()
 
 # Load up Tkinter
 root = tk.Tk()
+
+# Set Application theme
+root.style = ttk.Style()
+# print(root.style.theme_names())  # Shows list of available themes
+root.style.theme_use('alt')
+
 root.title(jclub.appname)
 root.resizable(True, True)
 

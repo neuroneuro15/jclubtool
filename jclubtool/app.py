@@ -8,7 +8,6 @@ import os
 from os import path
 
 
-
 class Application(tk.Frame):
 
     def __init__(self, images=None, master=None, save_dir=io.user_home_dir, debug=False):
@@ -55,32 +54,32 @@ class Application(tk.Frame):
         self.bar.pack()#grid(row=0, column=0)
 
 
-        self.btn_prev = tk.Button(self.bar, text='<', command=self.prev_page)
+        self.btn_prev = ttk.Button(self.bar, text='<', command=self.prev_page)
         self.btn_prev.pack(fill=tk.X, side=tk.LEFT)
 
-        self.btn_next = tk.Button(self.bar, text='>', command=self.next_page)
+        self.btn_next = ttk.Button(self.bar, text='>', command=self.next_page)
         self.btn_next.pack(fill=tk.X, side=tk.LEFT)
 
-        self.img_dirname_label = tk.Label(self.bar, text='Save Dir:')
+        self.img_dirname_label = ttk.Label(self.bar, text='Save Dir:')
         self.img_dirname_label.pack(fill=tk.X, side=tk.LEFT)
 
         self.img_dirname = tk.StringVar()
         self.img_dirname.set(os.getcwd())
-        self.img_dirname_entry = tk.Entry(self.bar, textvariable=self.img_dirname)
+        self.img_dirname_entry = ttk.Entry(self.bar, textvariable=self.img_dirname)
         self.img_dirname_entry.pack(fill=tk.X, side=tk.LEFT)
 
-        self.img_dirname_btn = tk.Button(self.bar, text='...', command=self.display_path_dialog)
+        self.img_dirname_btn = ttk.Button(self.bar, text='...', command=self.display_path_dialog)
         self.img_dirname_btn.pack(fill=tk.X, side=tk.LEFT)
 
-        self.img_basename_label = tk.Label(self.bar, text='Image Filename:')
+        self.img_basename_label = ttk.Label(self.bar, text='Image Filename:')
         self.img_basename_label.pack(fill=tk.X, side=tk.LEFT)
 
         self.img_filename = tk.StringVar()
         self.img_filename.set("img01.jpg")
-        self.img_basename = tk.Entry(self.bar, textvariable=self.img_filename)
+        self.img_basename = ttk.Entry(self.bar, textvariable=self.img_filename)
         self.img_basename.pack(fill=tk.X, side=tk.LEFT)
 
-        self.save_btn = tk.Button(self.bar, text="Save Image", command=self.get_subimage,
+        self.save_btn = ttk.Button(self.bar, text="Save Image", command=self.get_subimage,
                                   state=tk.DISABLED)
         self.save_btn.pack(fill=tk.X, side=tk.LEFT, expand=1)
 
