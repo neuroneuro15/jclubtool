@@ -8,6 +8,8 @@ jclub.create_cache()
 
 # Load up Tkinter
 root = tk.Tk()
+# root.iconbitmap('samples/logo2.ico')
+
 
 # Set Application theme
 root.style = ttk.Style()
@@ -17,7 +19,7 @@ root.style.theme_use('alt')
 root.title(jclub.appname)
 root.resizable(True, True)
 
-app = jclub.Application(master=root, debug=True)
+app = jclub.Application(master=root, debug=False)
 
 
 # Keyboard Shortcuts
@@ -33,6 +35,7 @@ filemenu.add_command(label="Open", command=app.load_pdf)
 
 
 root.config(menu=menubar)
+
 
 
 
