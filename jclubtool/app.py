@@ -11,6 +11,8 @@ class Application(tk.Frame):
 
     def __init__(self, images, master=None, save_dir=None):
 
+
+
         tk.Frame.__init__(self, master=master)
         self.images = PageCollection(images)
 
@@ -58,7 +60,8 @@ class Application(tk.Frame):
         self.save_btn.pack(side='top')
 
         # Make the main Canvas, where most everything is drawn
-        self.canvas = tk.Canvas(self, width=width, height=height)
+        self.canvas = tk.Canvas(self, width=width, height=height,
+                                cursor='cross')
         self.canvas.pack(side='right')
         self.canvas.update()
 
