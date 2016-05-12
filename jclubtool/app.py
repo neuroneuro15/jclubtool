@@ -97,6 +97,15 @@ class Application(tk.Frame):
     def get_subimage(self, event):
         img = self.images.get_subimage(*self.selectbox.coords)
         save_filename = path.join(self.img_dirname.get(), self.img_basename.get())
+
+        # Check if path exists
+        if not path.exists(path.dirname(save_filename)):
+            messagebox.showerror(parent=self, title="Directory Not Found",
+                                 message="Save Directory Not Found.  Please Select an Existing Directory to Continue.")
+            self.display_path_dialog()
+            return
+
+        # Check if save will overwrite previous file.
         if path.exists(save_filename):
             resp = messagebox.askyesno(parent=self,
                                        title="Overwrite File",
