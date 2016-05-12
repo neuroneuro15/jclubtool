@@ -2,7 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from .pages import PageCollection
 from .guitools import SelectionBox
-from .io import replace_filename_index
+from . import io
 from tkinter import filedialog, messagebox
 import os
 from os import path
@@ -25,8 +25,21 @@ class Application(tk.Frame):
         self.images.set_scale(canv_height)
         self.show_img()
 
-    def load_pdf(self, filename):
-        pass
+    def load_pdf(self, filename=None, resolution=100):
+        if not filename:
+            filename = filedialog.askopenfilename()
+        io.clear_cache()
+        io.copy_file_to_cache(filename)
+        new_filename = path.join(io.cache_dir, path.basename(filename))
+        io.convert_pdf_to_jpg(new_filename, path.join(io.cache_dir, 'img'),
+                              resolution=resolution)
+        img_names = io.get_jpg_filenames_from_cache()
+
+        images = [Image.open(name) for name in img_names]
+        self.images = PageCollection(images)
+        self.images.set_scale(self.canvas.winfo_height())
+        self.show_img()
+
 
     def _createWidgets(self, width=600, height=700):
         """Setup method.  Creates all buttons, canvases, and defaults before starting app."""
@@ -137,7 +150,7 @@ class Application(tk.Frame):
 
 
         # Increment Filename index
-        new_save_filename = replace_filename_index(self.img_filename.get())
+        new_save_filename = io.replace_filename_index(self.img_filename.get())
         self.img_filename.set(new_save_filename)
 
 

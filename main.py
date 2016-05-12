@@ -57,7 +57,7 @@ menubar = tk.Menu(root)
 
 filemenu = tk.Menu(menubar, tearoff=0)
 menubar.add_cascade(label="File", menu=filemenu)
-filemenu.add_command(label="Open", command=debug_print)
+filemenu.add_command(label="Open", command=app.load_pdf)
 
 
 root.config(menu=menubar)
