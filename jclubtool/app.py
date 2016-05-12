@@ -52,6 +52,10 @@ class Application(tk.Frame):
         self.img_basename = tk.Entry(self, textvariable=self.img_filename)
         self.img_basename.pack(side='top')
 
+        self.save_btn = tk.Button(self, text="Save Image", command=self.get_subimage,
+                                  state=tk.DISABLED)
+        self.save_btn.pack(side='top')
+
         # Make the main Canvas, where most everything is drawn
         self.canvas = tk.Canvas(self, width=width, height=height)
         self.canvas.pack(side='right')
@@ -77,11 +81,14 @@ class Application(tk.Frame):
             self.canvas.delete(self.selectbox)
         self.selectbox = 0
 
+
     def selectbox_create(self, event):
         self.selectbox.new(event.x, event.y)
+        self.save_btn.config(state=tk.DISABLED)
 
     def selectbox_update(self, event):
         self.selectbox.update(event.x, event.y)
+        self.save_btn.config(state=tk.NORMAL)
 
     def show_img(self):
         """Displays a rescaled page to fit the canvas size."""
@@ -94,8 +101,14 @@ class Application(tk.Frame):
         self.canvas.create_image(0, 0, image=self._photoimg, anchor='nw')
 
 
-    def get_subimage(self, event):
-        img = self.images.get_subimage(*self.selectbox.coords)
+    def get_subimage(self, event=None):
+        coords = self.selectbox.coords
+        if not coords:
+            messagebox.showerror(parent=self, title="Image Not Selected",
+                                 message="Please first click and drag image you wish saved.")
+            return
+
+        img = self.images.get_subimage(*coords)
         save_filename = path.join(self.img_dirname.get(), self.img_basename.get())
 
         # Check if path exists
@@ -121,9 +134,11 @@ class Application(tk.Frame):
     def next_page(self):
         self.images.next_page()
         self.show_img()
+        self.save_btn.config(state=tk.DISABLED)
 
     def prev_page(self):
         self.images.prev_page()
         self.show_img()
+        self.save_btn.config(state=tk.DISABLED)
 
 
