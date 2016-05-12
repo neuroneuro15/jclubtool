@@ -52,45 +52,46 @@ class Application(tk.Frame):
         """Setup method.  Creates all buttons, canvases, and defaults before starting app."""
 
         self.bar = tk.Frame(self)
-        self.bar.grid(row=0, column=0)
+        self.bar.pack()#grid(row=0, column=0)
+
 
         self.btn_prev = tk.Button(self.bar, text='<', command=self.prev_page)
-        self.btn_prev.grid(row=0, column=0)
+        self.btn_prev.pack(fill=tk.X, side=tk.LEFT)
 
         self.btn_next = tk.Button(self.bar, text='>', command=self.next_page)
-        self.btn_next.grid(row=0, column=1)
+        self.btn_next.pack(fill=tk.X, side=tk.LEFT)
 
         self.img_dirname_label = tk.Label(self.bar, text='Save Dir:')
-        self.img_dirname_label.grid(row=0, column=2)
+        self.img_dirname_label.pack(fill=tk.X, side=tk.LEFT)
 
         self.img_dirname = tk.StringVar()
         self.img_dirname.set(os.getcwd())
         self.img_dirname_entry = tk.Entry(self.bar, textvariable=self.img_dirname)
-        self.img_dirname_entry.grid(row=0, column=3)
+        self.img_dirname_entry.pack(fill=tk.X, side=tk.LEFT)
 
         self.img_dirname_btn = tk.Button(self.bar, text='...', command=self.display_path_dialog)
-        self.img_dirname_btn.grid(row=0, column=4)
+        self.img_dirname_btn.pack(fill=tk.X, side=tk.LEFT)
 
         self.img_basename_label = tk.Label(self.bar, text='Image Filename:')
-        self.img_basename_label.grid(row=0, column=5)
+        self.img_basename_label.pack(fill=tk.X, side=tk.LEFT)
 
         self.img_filename = tk.StringVar()
         self.img_filename.set("img01.jpg")
         self.img_basename = tk.Entry(self.bar, textvariable=self.img_filename)
-        self.img_basename.grid(row=0, column=6)
+        self.img_basename.pack(fill=tk.X, side=tk.LEFT)
 
         self.save_btn = tk.Button(self.bar, text="Save Image", command=self.get_subimage,
                                   state=tk.DISABLED)
-        self.save_btn.grid(row=0, column=7)
+        self.save_btn.pack(fill=tk.X, side=tk.LEFT, expand=1)
 
-        self.progress_bar = ttk.Progressbar(self.bar, orient='horizontal', mode='determinate')
-        self.progress_bar.grid(row=0, column=8)
-        self.progress_bar.grid_forget()
+        # self.progress_bar = ttk.Progressbar(self.bar, orient='horizontal', mode='determinate')
+        # self.progress_bar.grid(row=0, column=8)
+        # self.progress_bar.grid_forget()
 
         # Make the main Canvas, where most everything is drawn
         self.canvas = tk.Canvas(self, width=width, height=height,
                                 cursor='cross')
-        self.canvas.grid(row=1, column=0)
+        self.canvas.pack()#grid(row=1, column=0)
         self.canvas.update()
 
 
@@ -110,6 +111,7 @@ class Application(tk.Frame):
     def on_resize(self, event):
         self.images.set_scale(event.height)
         self.show_img()
+        self.bar.update()
 
     def selectbox_delete(self):
         if self.selectbox:
@@ -134,7 +136,6 @@ class Application(tk.Frame):
         self._photoimg = ImageTk.PhotoImage(image=img)
 
         self.canvas.create_image(0, 0, image=self._photoimg, anchor='nw')
-
 
     def get_subimage(self, event=None):
         coords = self.selectbox.coords
