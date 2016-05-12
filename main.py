@@ -20,7 +20,7 @@ root.bind('<Right>', lambda event: app.next_page())
 
 menubar = tk.Menu(root)
 
-filemenu = tk.Menu(menubar, tearoff=0)
+filemenu = tk.Menu(app, tearoff=0)
 menubar.add_cascade(label="File", menu=filemenu)
 filemenu.add_command(label="Open", command=app.load_pdf)
 

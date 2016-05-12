@@ -3,7 +3,7 @@ from PIL import Image, ImageTk
 from .pages import PageCollection
 from .guitools import SelectionBox
 from . import io
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import os
 from os import path
 
@@ -74,6 +74,9 @@ class Application(tk.Frame):
         self.save_btn = tk.Button(self, text="Save Image", command=self.get_subimage,
                                   state=tk.DISABLED)
         self.save_btn.pack(side='top')
+
+        self.progress_bar = ttk.Progressbar(self, orient='horizontal', mode='determinate')
+        self.progress_bar.pack(side='top')
 
         # Make the main Canvas, where most everything is drawn
         self.canvas = tk.Canvas(self, width=width, height=height,
