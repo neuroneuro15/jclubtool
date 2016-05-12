@@ -2,6 +2,9 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from .pages import PageCollection
 from .guitools import SelectionBox
+from tkinter import filedialog
+import os
+from os import path
 
 class Application(tk.Frame):
 
@@ -28,10 +31,22 @@ class Application(tk.Frame):
         self.btn_next = tk.Button(self, text='Next', command=self.next_page)
         self.btn_next.pack(side='top')
 
+        self.img_dirname_label = tk.Label(self, text='Save Dir:')
+        self.img_dirname_label.pack(side='top')
+
+        self.img_dirname = tk.StringVar()
+        self.img_dirname.set(os.getcwd())
+        self.img_dirname_entry = tk.Entry(self, textvariable=self.img_dirname)
+        self.img_dirname_entry.pack(side='top')
+
+        self.img_dirname_btn = tk.Button(self, text='...', command=self.display_path_dialog)
+        self.img_dirname_btn.pack(side='top')
+
         self.img_basename_label = tk.Label(self, text='Image Filename:')
         self.img_basename_label.pack(side='top')
 
         self.img_filename = tk.StringVar()
+        self.img_filename.set("img01.jpg")
         self.img_basename = tk.Entry(self, textvariable=self.img_filename)
         self.img_basename.pack(side='top')
 
@@ -47,6 +62,9 @@ class Application(tk.Frame):
         self.canvas.bind("<Button-3>", self.get_subimage)
         self.canvas.bind("<Configure>", self.on_resize)
 
+    def display_path_dialog(self):
+        dir_name = filedialog.askdirectory(title="Select a Save Directory")
+        self.img_dirname.set(dir_name)
 
     def on_resize(self, event):
         self.images.set_scale(event.height)
@@ -65,7 +83,6 @@ class Application(tk.Frame):
 
     def show_img(self):
         """Displays a rescaled page to fit the canvas size."""
-        print(self.img_filename)
         self.selectbox.delete()
         img = self.images.get_scaled_img()
 
@@ -77,7 +94,12 @@ class Application(tk.Frame):
 
     def get_subimage(self, event):
         img = self.images.get_subimage(*self.selectbox.coords)
-        img.save('img.jpg')
+        save_filename = path.join(self.img_dirname.get(), self.img_basename.get())
+        img.save(save_filename)
+        self.increment_save_filename()
+
+    def increment_save_filename(self):
+        pass
 
     def next_page(self):
         self.images.next_page()
