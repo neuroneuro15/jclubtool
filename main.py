@@ -43,7 +43,8 @@ root.resizable(True, True)
 images = [Image.open(name) for name in img_names]
 # images = jclub.AppImageCollection(img_names)
 
-app = jclub.Application(images=images, master=root)
+app = jclub.Application(images=images, master=root,
+                        save_dir=path.dirname(pdf_name))
 
 
 # Keyboard Shortcuts

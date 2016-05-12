@@ -2,19 +2,21 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from .pages import PageCollection
 from .guitools import SelectionBox
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import os
 from os import path
 
 class Application(tk.Frame):
 
-    def __init__(self, images, master=None):
+    def __init__(self, images, master=None, save_dir=None):
 
         tk.Frame.__init__(self, master=master)
         self.images = PageCollection(images)
 
         self.pack()
         self._createWidgets()
+        if save_dir:
+            self.img_dirname.set(save_dir)
         self.selectbox = SelectionBox(self.canvas)
 
         canv_height = self.canvas.winfo_height()
@@ -95,6 +97,12 @@ class Application(tk.Frame):
     def get_subimage(self, event):
         img = self.images.get_subimage(*self.selectbox.coords)
         save_filename = path.join(self.img_dirname.get(), self.img_basename.get())
+        if path.exists(save_filename):
+            resp = messagebox.askyesno(parent=self,
+                                       title="Overwrite File",
+                                       message="This will overwrite file {}.  Are you sure you want to continue?".format(self.img_filename.get()))
+            if not resp:
+                return
         img.save(save_filename)
         self.increment_save_filename()
 
