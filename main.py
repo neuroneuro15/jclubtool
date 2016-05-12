@@ -10,7 +10,7 @@ root = tk.Tk()
 root.title(jclub.appname)
 root.resizable(True, True)
 
-app = jclub.Application(master=root)
+app = jclub.Application(master=root, debug=True)
 
 
 # Keyboard Shortcuts

@@ -11,10 +11,10 @@ from os import path
 
 class Application(tk.Frame):
 
-    def __init__(self, images=None, master=None, save_dir=io.user_home_dir):
+    def __init__(self, images=None, master=None, save_dir=io.user_home_dir, debug=False):
 
         tk.Frame.__init__(self, master=master)
-        self.pack()
+        self.grid(row=0, column=0)
 
         self.images = None
 
@@ -22,7 +22,11 @@ class Application(tk.Frame):
         self.img_dirname.set(save_dir)
 
         self.selectbox = SelectionBox(self.canvas)
-        self.load_pdf()
+        if debug:
+            self.load_pdf(filename=path.join('samples', '416.full.pdf'),
+                          resolution=50)
+        else:
+            self.load_pdf()
 
     def load_pdf(self, filename=None, resolution=100):
         if not filename:
@@ -37,6 +41,7 @@ class Application(tk.Frame):
         io.convert_pdf_to_jpg(new_filename, path.join(io.cache_dir, 'img'),
                               resolution=resolution)
         img_names = io.get_jpg_filenames_from_cache()
+        self.img_dirname.set(path.dirname(filename))
 
         images = [Image.open(name) for name in img_names]
         self.images = PageCollection(images)
@@ -46,42 +51,46 @@ class Application(tk.Frame):
     def _createWidgets(self, width=600, height=700):
         """Setup method.  Creates all buttons, canvases, and defaults before starting app."""
 
-        self.btn_prev = tk.Button(self, text='Prev', command=self.prev_page)
-        self.btn_prev.pack(side='top')
+        self.bar = tk.Frame(self)
+        self.bar.grid(row=0, column=0)
 
-        self.btn_next = tk.Button(self, text='Next', command=self.next_page)
-        self.btn_next.pack(side='top')
+        self.btn_prev = tk.Button(self.bar, text='<', command=self.prev_page)
+        self.btn_prev.grid(row=0, column=0)
 
-        self.img_dirname_label = tk.Label(self, text='Save Dir:')
-        self.img_dirname_label.pack(side='top')
+        self.btn_next = tk.Button(self.bar, text='>', command=self.next_page)
+        self.btn_next.grid(row=0, column=1)
+
+        self.img_dirname_label = tk.Label(self.bar, text='Save Dir:')
+        self.img_dirname_label.grid(row=0, column=2)
 
         self.img_dirname = tk.StringVar()
         self.img_dirname.set(os.getcwd())
-        self.img_dirname_entry = tk.Entry(self, textvariable=self.img_dirname)
-        self.img_dirname_entry.pack(side='top')
+        self.img_dirname_entry = tk.Entry(self.bar, textvariable=self.img_dirname)
+        self.img_dirname_entry.grid(row=0, column=3)
 
-        self.img_dirname_btn = tk.Button(self, text='...', command=self.display_path_dialog)
-        self.img_dirname_btn.pack(side='top')
+        self.img_dirname_btn = tk.Button(self.bar, text='...', command=self.display_path_dialog)
+        self.img_dirname_btn.grid(row=0, column=4)
 
-        self.img_basename_label = tk.Label(self, text='Image Filename:')
-        self.img_basename_label.pack(side='top')
+        self.img_basename_label = tk.Label(self.bar, text='Image Filename:')
+        self.img_basename_label.grid(row=0, column=5)
 
         self.img_filename = tk.StringVar()
         self.img_filename.set("img01.jpg")
-        self.img_basename = tk.Entry(self, textvariable=self.img_filename)
-        self.img_basename.pack(side='top')
+        self.img_basename = tk.Entry(self.bar, textvariable=self.img_filename)
+        self.img_basename.grid(row=0, column=6)
 
-        self.save_btn = tk.Button(self, text="Save Image", command=self.get_subimage,
+        self.save_btn = tk.Button(self.bar, text="Save Image", command=self.get_subimage,
                                   state=tk.DISABLED)
-        self.save_btn.pack(side='top')
+        self.save_btn.grid(row=0, column=7)
 
-        self.progress_bar = ttk.Progressbar(self, orient='horizontal', mode='determinate')
-        self.progress_bar.pack(side='top')
+        self.progress_bar = ttk.Progressbar(self.bar, orient='horizontal', mode='determinate')
+        self.progress_bar.grid(row=0, column=8)
+        self.progress_bar.grid_forget()
 
         # Make the main Canvas, where most everything is drawn
         self.canvas = tk.Canvas(self, width=width, height=height,
                                 cursor='cross')
-        self.canvas.pack(side='right')
+        self.canvas.grid(row=1, column=0)
         self.canvas.update()
 
 
