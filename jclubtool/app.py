@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from .pages import PageCollection
 from .guitools import SelectionBox
+from .io import replace_filename_index
 from tkinter import filedialog, messagebox
 import os
 from os import path
@@ -126,10 +127,12 @@ class Application(tk.Frame):
             if not resp:
                 return
         img.save(save_filename)
-        self.increment_save_filename()
 
-    def increment_save_filename(self):
-        pass
+
+        # Increment Filename index
+        new_save_filename = replace_filename_index(self.img_filename.get())
+        self.img_filename.set(new_save_filename)
+
 
     def next_page(self):
         self.images.next_page()

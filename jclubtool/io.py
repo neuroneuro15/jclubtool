@@ -18,3 +18,38 @@ def get_jpg_page_number(filename):
 
 def sort_jpg_pages(filenames):
     filenames.sort(key=get_jpg_page_number)
+
+def get_filename_index(filename):
+    """Returns either 0 or the number at the end of a filename."""
+    dirname, basename = path.split(filename)
+    basename, extension = path.splitext(basename)
+
+    # Index backwards from end of basename.
+    filename_index = 0
+    for idx in range(-1, -len(basename), -1):
+        substring = basename[idx:]
+        if substring.isdigit():
+            filename_index = int(substring)
+        else:
+            break
+
+    return filename_index
+
+def replace_filename_index(filename, new_index=None):
+    """inserts filename index into filename, replacing the existing one, if any.
+    If new_index is not set, will increment the existing index."""
+    filename_index = get_filename_index(filename)
+
+    # Auto-increment index, if not defined.
+    if not new_index:
+        new_index = filename_index + 1
+
+    basename, extension = path.splitext(filename)
+    new_basename = basename[:-len(str(filename_index))] if (basename[-1]).isdigit() else basename
+    return ''.join([new_basename, str(new_index), extension])
+
+
+
+
+
+
