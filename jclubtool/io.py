@@ -8,7 +8,7 @@ from glob import glob
 
 appname = 'jclubtool'
 cache_dir = appdirs.user_cache_dir(appname=appname)
-
+user_home_dir = path.realpath(path.expanduser('~'))
 
 
 def copy_file_to_cache(filename):

@@ -8,26 +8,29 @@ import os
 from os import path
 
 
+
 class Application(tk.Frame):
 
-    def __init__(self, images, master=None, save_dir=None):
+    def __init__(self, images=None, master=None, save_dir=io.user_home_dir):
 
         tk.Frame.__init__(self, master=master)
-        self.images = PageCollection(images)
-
         self.pack()
-        self._createWidgets()
-        if save_dir:
-            self.img_dirname.set(save_dir)
-        self.selectbox = SelectionBox(self.canvas)
 
-        canv_height = self.canvas.winfo_height()
-        self.images.set_scale(canv_height)
-        self.show_img()
+        self.images = None
+
+        self._createWidgets()
+        self.img_dirname.set(save_dir)
+
+        self.selectbox = SelectionBox(self.canvas)
+        self.load_pdf()
 
     def load_pdf(self, filename=None, resolution=100):
         if not filename:
-            filename = filedialog.askopenfilename()
+            filename = filedialog.askopenfilename(initialdir=io.user_home_dir,
+                                                  filetypes=[('pdf files', '*.pdf')])
+            if not filename:
+                return
+
         io.clear_cache()
         io.copy_file_to_cache(filename)
         new_filename = path.join(io.cache_dir, path.basename(filename))
@@ -39,7 +42,6 @@ class Application(tk.Frame):
         self.images = PageCollection(images)
         self.images.set_scale(self.canvas.winfo_height())
         self.show_img()
-
 
     def _createWidgets(self, width=600, height=700):
         """Setup method.  Creates all buttons, canvases, and defaults before starting app."""
