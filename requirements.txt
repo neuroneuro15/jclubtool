@@ -1,4 +1,3 @@
 Wand
-tkinter
 Pillow
 appdirs
