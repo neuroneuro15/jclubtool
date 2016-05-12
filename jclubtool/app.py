@@ -27,9 +27,9 @@ class Application(tk.Frame):
         else:
             self.load_pdf()
 
-    def load_pdf(self, filename=None, resolution=100):
+    def load_pdf(self, filename=None, load_dir=io.user_home_dir, resolution=100):
         if not filename:
-            filename = filedialog.askopenfilename(initialdir=io.user_home_dir,
+            filename = filedialog.askopenfilename(initialdir=load_dir,
                                                   filetypes=[('pdf files', '*.pdf')])
             if not filename:
                 return
