@@ -7,11 +7,10 @@ from tkinter import filedialog, messagebox
 import os
 from os import path
 
+
 class Application(tk.Frame):
 
     def __init__(self, images, master=None, save_dir=None):
-
-
 
         tk.Frame.__init__(self, master=master)
         self.images = PageCollection(images)
@@ -26,9 +25,11 @@ class Application(tk.Frame):
         self.images.set_scale(canv_height)
         self.show_img()
 
+    def load_pdf(self, filename):
+        pass
+
     def _createWidgets(self, width=600, height=700):
         """Setup method.  Creates all buttons, canvases, and defaults before starting app."""
-
 
         self.btn_prev = tk.Button(self, text='Prev', command=self.prev_page)
         self.btn_prev.pack(side='top')
@@ -71,6 +72,9 @@ class Application(tk.Frame):
         self.canvas.bind("<B1-Motion>", self.selectbox_update)
         self.canvas.bind("<Button-3>", self.get_subimage)
         self.canvas.bind("<Configure>", self.on_resize)
+
+    def debug_print(self, event=None):
+        print('hello world')
 
     def display_path_dialog(self):
         dir_name = filedialog.askdirectory(title="Select a Save Directory")

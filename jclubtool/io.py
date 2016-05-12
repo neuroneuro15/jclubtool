@@ -1,6 +1,20 @@
 from wand.image import Image
+import os
 from os import path
 import re
+import appdirs
+import shutil
+from glob import glob
+
+appname = 'jclubtool'
+cache_dir = appdirs.user_cache_dir(appname=appname)
+
+
+
+def copy_file_to_cache(filename):
+    """Copies the file to the cache directory."""
+    new_filename = path.join(cache_dir, path.basename(filename))
+    shutil.copy(filename, new_filename)
 
 def convert_pdf_to_jpg(pdf_filename, jpg_filename, resolution=300):
 
@@ -16,8 +30,17 @@ def convert_pdf_to_jpg(pdf_filename, jpg_filename, resolution=300):
 def get_jpg_page_number(filename):
     return int(re.findall('([0-9]+)', filename)[0])
 
+
 def sort_jpg_pages(filenames):
     filenames.sort(key=get_jpg_page_number)
+
+
+def get_jpg_filenames_from_cache():
+    # Return filenames of jpg files created
+    img_names = glob(path.join(cache_dir, '*.jpg'))
+    sort_jpg_pages(img_names)
+    return img_names
+
 
 def get_filename_index(filename):
     """Returns either 0 or the number at the end of a filename."""
@@ -49,7 +72,20 @@ def replace_filename_index(filename, new_index=None):
     return ''.join([new_basename, str(new_index), extension])
 
 
+def create_cache():
+    """Try to create the cache directory"""
+    try:
+        os.makedirs(cache_dir)
+    except OSError:
+        pass
 
+def clear_cache():
+    """Delete everything in cache directory"""
+
+    for name in os.listdir(cache_dir):
+        file_path = path.join(cache_dir, name)
+        if path.isfile(file_path):
+            os.unlink(file_path)
 
 
 
